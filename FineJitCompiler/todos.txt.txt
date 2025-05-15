@@ -1,0 +1,12 @@
+-cleanup
+-no char* & no raw ptr
+-abstract emitting instructions
+-implment non-func scope
+-for
+-implment class
+
+for statement:
+
+for i < 20:
+
+for <class>( arguments )

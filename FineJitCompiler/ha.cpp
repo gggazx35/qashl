@@ -15,7 +15,7 @@ EvalValue::ptr FunctionDefinition::eval(QCompiler* c, Node* parent)
 	FuncSignature funcSig = FuncSignature();
 	FuncNode* funcNode;
 	QMethodDef* method = new QMethodDef();
-
+	this->funcNode = method;
 
 	for (int i = 0; i < params.size(); i++) {
 		VariableDefinition* var = ((VariableDefinition*)params[i]);
@@ -89,7 +89,7 @@ EvalValue::ptr BinaryNode::eval(QCompiler* c, Node* parent)
 		case InstType::ADD:
 			result = (left->intLiteral + right->intLiteral); break;
 		case InstType::SUB:
-			result = (left->intLiteral + right->intLiteral); break;
+			result = (left->intLiteral - right->intLiteral); break;
 		case InstType::MUL:
 			result = (left->intLiteral * right->intLiteral); break;
 		case InstType::DIV:
@@ -123,7 +123,7 @@ EvalValue::ptr BinaryNode::eval(QCompiler* c, Node* parent)
 			c->get()->sub(left->local, right->intLiteral);
 			break;
 		}
-		return right;
+		return left;
 	}
 }
 
@@ -153,7 +153,7 @@ int QCompiler::compile(ClassDefinition* cls)
 	if (err) return 1;
 
 	auto forTest = qashEnt(20);
-
+	std::cout << forTest << '\n';
 	rt.release(qashEnt);
 	return 0;
 }

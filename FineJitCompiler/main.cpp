@@ -251,7 +251,7 @@ int main(int argc, char* argv[]) {
 	tokens.push_back(Token{ ETokenType::Ident, (char*)("ret") });
 	//tokens.push_back(Token{ ETokenType::LParen, nullptr });
 
-	tokens.push_back(Token{ ETokenType::Integer, str20 });
+	tokens.push_back(Token{ ETokenType::Ident, strX });
 	tokens.push_back(Token{ ETokenType::Binary, strP });
 	tokens.push_back(Token{ ETokenType::Integer, str20 });
 	tokens.push_back(Token{ ETokenType::Binary, strM });

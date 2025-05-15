@@ -269,7 +269,8 @@ Node* Parser::parseExpr_1(Node* lhs, int minPrecedence) {
 			lookAhead = peekNext();
 		}
 
-		lhs = new BinaryNode(lhs, rhs, ADD);
+		std::string opToFind(op.value);
+		lhs = new BinaryNode(lhs, rhs, opLookup[opToFind].inst);
 	}
 	return lhs;
 }
