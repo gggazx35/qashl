@@ -1,27 +1,89 @@
 #include "parser.h"
 
+
+
+
 Parser::Parser(std::vector<Token>& _tokens, std::string& _title)  {
 	title = _title;
 	cls = new ClassDefinition(_title);
 	tokens = _tokens;
 	index = 0;
 	tabCount = 0;
+
+	int order = 1;
+
 	OperatorData opd;
-	opd.inst = ADD;
+
+
+	opd.isRightAssco = true;
+	opd.precedence = order++;
+
+	//////////////
+
+	opd.inst = ASSIGN;
+	opLookup.insert(std::make_pair("=", opd));
+	
+	opd.inst = ASSIGN_ADD;
+	opLookup.insert(std::make_pair("+=", opd));
+
+	opd.inst = ASSIGN_SUB;
+	opLookup.insert(std::make_pair("-=", opd));
+
+	///////////
 
 	opd.isRightAssco = false;
-	opd.precedence = 1;
+
+	opd.precedence = order++;
+
+
+	////////////////
+
+	opd.inst = EQUAL;
+	opLookup.insert(std::make_pair("==", opd));
+
+	///////////////
+
+	opd.precedence = order++;
+	
+	///////////
+
+	opd.inst = GREATER_THAN;
+	opLookup.insert(std::make_pair(">", opd));
+
+	opd.inst = LESS_THAN;
+	opLookup.insert(std::make_pair("<", opd));
+
+	opd.inst = GREATER_EQUAL;
+	opLookup.insert(std::make_pair(">=", opd));
+
+	opd.inst = LESS_EQUAL;
+	opLookup.insert(std::make_pair("<=", opd));
+
+	///////////////
+
+	opd.precedence = order++;
+	
+	/////////////////
+	
+	opd.inst = ADD;
 	opLookup.insert(std::make_pair("+", opd));
 
 	opd.inst = SUB;
 	opLookup.insert(std::make_pair("-", opd));
 
-	opd.precedence = 2;
+	///////////////
+
+	opd.precedence = order++;
+
+	//////////////////
+
 	opd.inst = MUL;
 	opLookup.insert(std::make_pair("*", opd));
 
 	opd.inst = DIV;
 	opLookup.insert(std::make_pair("/", opd));
+
+	///////////////
 
 	typeLookup.insert(std::make_pair("int", QType::Int));
 
@@ -107,8 +169,10 @@ Node* Parser::parseScope()
 {
 	Token lookAhead = peekNext();
 	tabCount++;
+	
 	int commaCount = 0;
 	int tabs = 0;
+	
 	std::vector<Node*> nodes;
 	while (lookAhead.type != ETokenType::Eof) {
 		while (lookAhead.type == ETokenType::Tab) {
@@ -135,10 +199,10 @@ FunctionDefinition* Parser::parseMethod() {
 	int commaCount = 0;
 	std::vector<Node*> nodes;
 
-	if (lookAhead.type == ETokenType::Ident && strcmp(lookAhead.value, "def") == 0) {
+	if (lookAhead.type == ETokenType::Ident && lookAhead.value == "def") {
 		Advance();
 		lookAhead = peekNext();
-		std::string ident = lookAhead.value;
+		std::string_view ident = lookAhead.value;
 
 		Advance();
 		lookAhead = peekNext();
@@ -190,7 +254,7 @@ Node* Parser::parseVariable() {
 	ident = t.value;
 	Advance();
 
-	if (t.type == ETokenType::Ident && strcmp(t.value, "ret") == 0)
+	if (t.type == ETokenType::Ident && t.value == "ret")
 		return parseReturn();
 
 	if (t.type == ETokenType::Ident) {
@@ -200,10 +264,10 @@ Node* Parser::parseVariable() {
 			Node* arguement = parseArguement();
 			return new FunctionCall(ident, arguement);
 		}
-		else if (lookAhead.type == ETokenType::Assign) {
+		/*else if (lookAhead.type == ETokenType::Assign) {
 			Node* expr = parseExpr();
 			return new BinaryNode(new Identifier(ident), expr, ADD_R_O);
-		}
+		}*/
 		else
 			return new Identifier(ident);
 	}
@@ -237,7 +301,7 @@ Node* Parser::parsePrimary() {
 	}
 	else {
 		Advance();
-		node = new LiteralNode(atoi(t.value));
+		node = new LiteralNode(atoi(t.value.data()));
 	}
 	return node;
 }

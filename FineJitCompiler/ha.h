@@ -15,11 +15,18 @@ enum InstType {
 	SUB,
 	DIV,
 	MUL,
-	ADD_R_O,
-	STORE,
-	STORE_O_R,
-	OFFSET,
-	REGISTER
+
+	ASSIGN,
+	ASSIGN_ADD,
+	ASSIGN_SUB,
+
+	GREATER_THAN,
+	LESS_THAN,
+
+	GREATER_EQUAL,
+	LESS_EQUAL,
+
+	EQUAL,
 };
 
 enum class ENodeType {
@@ -33,6 +40,12 @@ enum class ENodeType {
 	FunctionDef,
 	ClassDef,
 	Return,
+
+	FunctionCall,
+
+	Argument,
+	Scope,
+
 	None
 };
 
@@ -178,6 +191,7 @@ public:
 	std::vector<Node*> nodes;
 	ArgumentNode(std::vector<Node*>& _nodes) {
 		nodes = _nodes;
+		type = ENodeType::Argument;
 	}
 	/*EvalValue::ptr eval(QCompiler* c, Node* parent) override {
 		
@@ -192,6 +206,7 @@ class ScopeNode : public Node {
 public:
 	ScopeNode(std::vector<Node*>& _node) {
 		nodes = _node;
+		type = ENodeType::Scope;
 	}
 
 	EvalValue::ptr eval(QCompiler* c, Node* parent) override;
@@ -202,9 +217,10 @@ private:
 public:
 	std::string name;
 	Node* args;
-	FunctionCall(std::string& _name, Node* _node) {
+	FunctionCall(std::string_view _name, Node* _node) {
 		name = _name;
 		args = _node;
+		type = ENodeType::FunctionCall;
 	}
 	/*EvalValue::ptr eval(QCompiler* c, Node* parent) override {
 
@@ -221,13 +237,14 @@ public:
 	std::vector<Node*> params;
 	QType type;
 	Node* scope;
-	FunctionDefinition(std::string& _name, QType _type, std::vector<Node*>& _node, Node* _scope) {
+	FunctionDefinition(std::string_view _name, QType _type, std::vector<Node*>& _node, Node* _scope) {
 		name = _name;
 		params = _node;
 		type = _type;
 		scope = _scope;
 	}
 	EvalValue::ptr eval(QCompiler* c, Node* parent) override;
+	void preEval(QCompiler* c);
 	std::string& getName() {
 		return name;
 	}
@@ -238,7 +255,7 @@ private:
 public:
 	std::string name;
 	QType qtype;
-	VariableDefinition(std::string& _name, QType _ty) {
+	VariableDefinition(std::string_view _name, QType _ty) {
 		name = _name;
 		qtype = _ty;
 	}
@@ -250,12 +267,12 @@ public:
 
 class ClassDefinition : public Node {
 	std::string name;
-	std::unordered_map<std::string, Node*> methods;
-	std::unordered_map<std::string, Node*> properties;
+	std::unordered_map<std::string, FunctionDefinition*> methods;
+	std::unordered_map<std::string, VariableDefinition*> properties;
 public:
 	EvalValue::ptr eval(QCompiler* c, Node* parent) override;
 
-	ClassDefinition(std::string& _name) {
+	ClassDefinition(std::string_view _name) {
 		name = _name;
 	}
 	void pushProperty(VariableDefinition* prop) {
@@ -271,7 +288,7 @@ class Identifier : public Node {
 private:
 public:
 	std::string name;
-	Identifier(std::string& _name) {
+	Identifier(std::string_view _name) {
 		name = _name;
 	}
 	EvalValue::ptr eval(QCompiler* c, Node* parent) override;
@@ -433,8 +450,8 @@ public:
 	//QCompiler(x86::Compiler* compiler);
 	int compile(ClassDefinition* cls);
 	
-	FuncNode* getFunc(std::string name) {
-		return functions[name];
+	FuncNode* getFunc(std::string_view name) {
+		return functions[name.data()];
 	}
 
 	FuncNode* addFunc(std::string name, FuncNode* node) {
@@ -453,6 +470,8 @@ public:
 	x86::Compiler* get() {
 		return compiler;
 	}
+
+	
 };
 
 
@@ -467,7 +486,7 @@ public:
 		callee = nullptr;
 	}
 
-	void addArg(std::string& name, FuncSignature& funcSig, QType qtype) {
+	void addArg(std::string_view name, FuncSignature& funcSig, QType qtype) {
 		switch (qtype) {
 		case QType::Int:
 			funcSig.addArg(TypeId::kInt32);
@@ -509,4 +528,6 @@ public:
 	x86::Gp& getLocal(std::string& name) {
 		return locals[name];
 	}
+
+	FuncNode* getCallee() { return callee; }
 };

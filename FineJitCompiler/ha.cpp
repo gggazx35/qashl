@@ -7,10 +7,34 @@ EvalValue::ptr MemoryNode::eval(QCompiler* c, Node* parent)
 
 EvalValue::ptr ClassDefinition::eval(QCompiler* c, Node* parent)
 {
-	return methods["init"]->eval(c, this);
+	for (auto method : methods) {
+		method.second->preEval(c);
+	}
+
+	for (auto method : methods) {
+		method.second->eval(c, this);
+	}
+
+	//return methods["init"]->eval(c, this);
+	return std::make_unique<EvalValue>();
 }
 
 EvalValue::ptr FunctionDefinition::eval(QCompiler* c, Node* parent)
+{
+	c->setCurrentMethod(this);
+	
+	scope->eval(c, this);
+
+	c->addFunc(name, funcNode->getCallee());
+	c->setCurrentMethod(nullptr);
+
+	c->get()->endFunc();
+	c->get()->finalize();
+
+	return std::make_unique<EvalValue>(funcNode);
+}
+
+void FunctionDefinition::preEval(QCompiler* c)
 {
 	FuncSignature funcSig = FuncSignature();
 	FuncNode* funcNode;
@@ -24,19 +48,6 @@ EvalValue::ptr FunctionDefinition::eval(QCompiler* c, Node* parent)
 	method->setRet(TypeId::kInt32, funcSig);
 
 	funcNode = method->build(c, funcSig);
-
-	
-	c->setCurrentMethod(this);
-	
-	scope->eval(c, this);
-
-	c->addFunc(name, funcNode);
-	c->setCurrentMethod(nullptr);
-
-	c->get()->endFunc();
-	c->get()->finalize();
-
-	return std::make_unique<EvalValue>(method);
 }
 
 EvalValue::ptr ScopeNode::eval(QCompiler* c, Node* parent)
@@ -152,7 +163,7 @@ int QCompiler::compile(ClassDefinition* cls)
 	Error err = rt.add(&qashEnt, &code);
 	if (err) return 1;
 
-	auto forTest = qashEnt(20);
+	auto forTest = qashEnt(240);
 	std::cout << forTest << '\n';
 	rt.release(qashEnt);
 	return 0;

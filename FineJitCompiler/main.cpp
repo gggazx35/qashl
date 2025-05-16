@@ -3,6 +3,7 @@
 #include <iostream>
 #include "parser.h"
 #include "qvm.h"
+#include "QObject.h"
 
 using namespace asmjit;
 
@@ -138,6 +139,15 @@ void compile(CodeHolder& code) {
 	x86::Gpd locals[4] = { x86::ecx, x86::edx, x86::r8d, x86::r9d };
 }
 
+class ClassForTest
+{
+public:
+	char* cptr;
+	static void print(ClassForTest* _self) {
+		std::cout << _self->cptr << std::endl;
+	}
+};
+
 int main(int argc, char* argv[]) {
 	///*std::string name;
 	//std::cout << "What is your name? : ";
@@ -235,23 +245,28 @@ int main(int argc, char* argv[]) {
 	tokens.push_back(Token{ ETokenType::Ident, strDef });
 
 	tokens.push_back(Token{ ETokenType::Ident, strF });
-	tokens.push_back(Token{ ETokenType::LParen, nullptr });
+	tokens.push_back(Token{ ETokenType::LParen, "" });
 	
 	tokens.push_back(Token{ ETokenType::Ident, strX });
-	tokens.push_back(Token{ ETokenType::Colon, nullptr });
+	tokens.push_back(Token{ ETokenType::Colon, ""});
 	tokens.push_back(Token{ ETokenType::Ident, strInt });
 
-	tokens.push_back(Token{ ETokenType::RParen, nullptr });
+	tokens.push_back(Token{ ETokenType::RParen, "" });
 
-	tokens.push_back(Token{ ETokenType::Colon, nullptr });
+	tokens.push_back(Token{ ETokenType::Colon, ""});
 	tokens.push_back(Token{ ETokenType::Ident, strInt });
 
-	tokens.push_back(Token{ ETokenType::Tab, nullptr });
+	tokens.push_back(Token{ ETokenType::Tab, "" });
 
 	tokens.push_back(Token{ ETokenType::Ident, (char*)("ret") });
 	//tokens.push_back(Token{ ETokenType::LParen, nullptr });
 
+	tokens.push_back(Token{ ETokenType::Ident, "func" });
+
+	tokens.push_back(Token{ ETokenType::LParen, "" });
 	tokens.push_back(Token{ ETokenType::Ident, strX });
+	tokens.push_back(Token{ ETokenType::RParen, "" });
+
 	tokens.push_back(Token{ ETokenType::Binary, strP });
 	tokens.push_back(Token{ ETokenType::Integer, str20 });
 	tokens.push_back(Token{ ETokenType::Binary, strM });
@@ -259,9 +274,38 @@ int main(int argc, char* argv[]) {
 	tokens.push_back(Token{ ETokenType::Binary, strM });
 	tokens.push_back(Token{ ETokenType::Integer, str10 });
 
+	// func
+
+	tokens.push_back(Token{ ETokenType::Ident, strDef });
+
+	tokens.push_back(Token{ ETokenType::Ident, "func" });
+	tokens.push_back(Token{ ETokenType::LParen, "" });
+
+	tokens.push_back(Token{ ETokenType::Ident, strX });
+	tokens.push_back(Token{ ETokenType::Colon, "" });
+	tokens.push_back(Token{ ETokenType::Ident, strInt });
+
+	tokens.push_back(Token{ ETokenType::RParen, "" });
+
+	tokens.push_back(Token{ ETokenType::Colon, "" });
+	tokens.push_back(Token{ ETokenType::Ident, strInt });
+
+	tokens.push_back(Token{ ETokenType::Tab, "" });
+
+	tokens.push_back(Token{ ETokenType::Ident, (char*)("ret") });
+	//tokens.push_back(Token{ ETokenType::LParen, nullptr });
+
+	tokens.push_back(Token{ ETokenType::Ident, strX });
+	tokens.push_back(Token{ ETokenType::Binary, strM });
+	tokens.push_back(Token{ ETokenType::Integer, "2" });
+
+
+
+	///////////////////////////////////
+
 	//tokens.push_back(Token{ ETokenType::RParen, nullptr });
 
-	tokens.push_back(Token{ ETokenType::Eof, nullptr });
+	tokens.push_back(Token{ ETokenType::Eof, "" });
 	/*tokens.push_back(Token{ ETokenType::Binary, strP });
 	tokens.push_back(Token{ ETokenType::Integer, str20 });*/
 
@@ -269,6 +313,12 @@ int main(int argc, char* argv[]) {
 	Parser* p = new Parser(tokens, aTitel);
 	auto comp = new QCompiler();
 	comp->compile(p->getTop());
+
+
+
+
+	QObject* obj = new QObject()
+
 
 	/*
 

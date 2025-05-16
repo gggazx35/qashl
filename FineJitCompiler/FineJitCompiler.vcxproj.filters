@@ -30,6 +30,9 @@
     <ClCompile Include="ha.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="QObject.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ha.h">
@@ -48,6 +51,9 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="parser.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="QObject.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,8 @@
 #include <string>
 #include "ha.h"
 #include "qtype.h"
+#include <memory>
+#include <string_view>
 
 
 enum class ETokenType
@@ -21,7 +23,7 @@ enum class ETokenType
 
 typedef struct Token {
 	ETokenType type;
-	char* value;
+	std::string_view value;
 };
 
 typedef struct OperatorData {
